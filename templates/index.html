@@ -1,0 +1,143 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1 class="mb-4">Dashboard</h1>
+
+<div class="row">
+    <!-- Stats Cards -->
+    <div class="col-md-4 mb-4">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Products</h5>
+                        <h2 class="display-4">{{ product_count }}</h2>
+                    </div>
+                    <i class="fas fa-box fa-3x"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('products') }}" class="text-white text-decoration-none">View Details</a>
+                <i class="fas fa-arrow-circle-right"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Orders</h5>
+                        <h2 class="display-4">{{ order_count }}</h2>
+                    </div>
+                    <i class="fas fa-shopping-cart fa-3x"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('orders') }}" class="text-white text-decoration-none">View Details</a>
+                <i class="fas fa-arrow-circle-right"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Users</h5>
+                        <h2 class="display-4">{{ user_count }}</h2>
+                    </div>
+                    <i class="fas fa-users fa-3x"></i>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <span class="text-white">Total Registered Users</span>
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Pending Orders -->
+<div class="card mt-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">
+            <i class="fas fa-clock"></i> Pending Orders
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if pending_orders %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in pending_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.user_data.first_name }} {{ order.user_data.last_name or '' }}</td>
+                        <td>{{ order.created_at.split('T')[0] }}</td>
+                        <td>${{ '%.2f'|format(order.total) }}</td>
+                        <td>
+                            <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center mb-0">No pending orders.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Overview -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-robot"></i> Telegram Bot Status
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                <h4>Bot is running</h4>
+                <p class="text-muted">The Telegram bot is running and responding to user commands.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('product_add') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add New Product
+                    </a>
+                    <a href="{{ url_for('orders') }}" class="btn btn-success">
+                        <i class="fas fa-list"></i> Manage Orders
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

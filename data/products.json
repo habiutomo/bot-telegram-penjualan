@@ -1,0 +1,29 @@
+{
+    "1": {
+        "id": "1",
+        "name": "Smartphone Case",
+        "description": "Durable and stylish case for your smartphone.",
+        "price": 15.99,
+        "stock": 50,
+        "image_url": "",
+        "created_at": "2023-06-15T10:00:00"
+    },
+    "2": {
+        "id": "2",
+        "name": "Bluetooth Headphones",
+        "description": "Wireless headphones with noise cancellation.",
+        "price": 89.99,
+        "stock": 25,
+        "image_url": "",
+        "created_at": "2023-06-15T10:01:00"
+    },
+    "3": {
+        "id": "3",
+        "name": "Laptop Sleeve",
+        "description": "Protection for your laptop with additional pockets.",
+        "price": 24.99,
+        "stock": 30,
+        "image_url": "",
+        "created_at": "2023-06-15T10:02:00"
+    }
+}

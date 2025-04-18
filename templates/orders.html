@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1 class="mb-4">Orders</h1>
+
+<div class="card">
+    <div class="card-body">
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for id, order in orders.items()|sort(attribute='1.created_at', reverse=True) %}
+                    <tr class="
+                        {% if order.status == 'pending' %}table-warning
+                        {% elif order.status == 'processing' %}table-primary
+                        {% elif order.status == 'shipped' %}table-info
+                        {% elif order.status == 'delivered' %}table-success
+                        {% elif order.status == 'cancelled' %}table-danger
+                        {% endif %}
+                    ">
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.user_data.first_name }} {{ order.user_data.last_name or '' }}</td>
+                        <td>{{ order.created_at.split('T')[0] }}</td>
+                        <td>${{ '%.2f'|format(order.total) }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if order.status == 'pending' %}bg-warning
+                                {% elif order.status == 'processing' %}bg-primary
+                                {% elif order.status == 'shipped' %}bg-info
+                                {% elif order.status == 'delivered' %}bg-success
+                                {% elif order.status == 'cancelled' %}bg-danger
+                                {% endif %}
+                            ">
+                                {{ order.status|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x mb-3 text-muted"></i>
+            <h3>No Orders Yet</h3>
+            <p class="text-muted">Orders will appear here once customers make purchases through the Telegram bot.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Order Status Guide</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Pending
+                        <span class="badge bg-warning">PENDING</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Processing
+                        <span class="badge bg-primary">PROCESSING</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Shipped
+                        <span class="badge bg-info">SHIPPED</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Delivered
+                        <span class="badge bg-success">DELIVERED</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Cancelled
+                        <span class="badge bg-danger">CANCELLED</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

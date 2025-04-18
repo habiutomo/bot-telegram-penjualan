@@ -1,0 +1,189 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Order #{{ order.id }}</h1>
+    <a href="{{ url_for('orders') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Orders
+    </a>
+</div>
+
+<div class="row">
+    <!-- Order Details -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Order Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                        <p><strong>Date:</strong> {{ order.created_at.split('T')[0] }}</p>
+                        <p><strong>Customer:</strong> {{ order.user_data.first_name }} {{ order.user_data.last_name or '' }}</p>
+                        <p><strong>Username:</strong> @{{ order.user_data.username or 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> 
+                            <span class="badge 
+                                {% if order.status == 'pending' %}bg-warning
+                                {% elif order.status == 'processing' %}bg-primary
+                                {% elif order.status == 'shipped' %}bg-info
+                                {% elif order.status == 'delivered' %}bg-success
+                                {% elif order.status == 'cancelled' %}bg-danger
+                                {% endif %}
+                            ">
+                                {{ order.status|upper }}
+                            </span>
+                        </p>
+                        <p><strong>Total Amount:</strong> ${{ '%.2f'|format(order.total) }}</p>
+                        <p><strong>Telegram ID:</strong> {{ order.user_id }}</p>
+                    </div>
+                </div>
+                
+                <h6 class="mt-4 mb-3">Shipping Address:</h6>
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <p class="mb-0">{{ order.address }}</p>
+                    </div>
+                </div>
+                
+                <h6 class="mb-3">Order Items:</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product_id, item in order.items.items() %}
+                            <tr>
+                                <td>{{ item.product_name }}</td>
+                                <td>${{ '%.2f'|format(item.price) }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td class="text-end">${{ '%.2f'|format(item.price * item.quantity) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Total:</th>
+                                <th class="text-end">${{ '%.2f'|format(order.total) }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Actions -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Update Status</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Order Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                            <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                            <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Status
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Order Timeline</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-shopping-cart text-primary"></i> Order Placed
+                            <div class="small text-muted">{{ order.created_at.split('T')[0] }}</div>
+                        </div>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </li>
+                    
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-box text-primary"></i> Processing
+                            <div class="small text-muted">
+                                {% if order.status in ['processing', 'shipped', 'delivered'] %}
+                                    {{ order.updated_at.split('T')[0] if order.updated_at else '—' }}
+                                {% else %}
+                                    Pending
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if order.status in ['processing', 'shipped', 'delivered'] %}
+                            <i class="fas fa-check-circle text-success"></i>
+                        {% elif order.status == 'cancelled' %}
+                            <i class="fas fa-times-circle text-danger"></i>
+                        {% else %}
+                            <i class="fas fa-circle text-muted"></i>
+                        {% endif %}
+                    </li>
+                    
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-shipping-fast text-primary"></i> Shipped
+                            <div class="small text-muted">
+                                {% if order.status in ['shipped', 'delivered'] %}
+                                    {{ order.updated_at.split('T')[0] if order.updated_at else '—' }}
+                                {% else %}
+                                    Pending
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if order.status in ['shipped', 'delivered'] %}
+                            <i class="fas fa-check-circle text-success"></i>
+                        {% elif order.status == 'cancelled' %}
+                            <i class="fas fa-times-circle text-danger"></i>
+                        {% else %}
+                            <i class="fas fa-circle text-muted"></i>
+                        {% endif %}
+                    </li>
+                    
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-home text-primary"></i> Delivered
+                            <div class="small text-muted">
+                                {% if order.status == 'delivered' %}
+                                    {{ order.updated_at.split('T')[0] if order.updated_at else '—' }}
+                                {% else %}
+                                    Pending
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if order.status == 'delivered' %}
+                            <i class="fas fa-check-circle text-success"></i>
+                        {% elif order.status == 'cancelled' %}
+                            <i class="fas fa-times-circle text-danger"></i>
+                        {% else %}
+                            <i class="fas fa-circle text-muted"></i>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
