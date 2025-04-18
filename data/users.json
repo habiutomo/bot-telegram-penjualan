@@ -1,1 +1,26 @@
-{}
+{
+    "1": {
+        "id": "1",
+        "username": "admin",
+        "email": "admin@admin.com",
+        "password_hash": "scrypt:32768:8:1$yKbXP7xv0jUaVSlB$944d59f3db3a514c0cd35e14d4ecc1e95087d03dcb240bcdf75b0c1c814ae12999dc721ff35203c79ee217f3ae8c83e09962241f0dc9a34a12de5524d7641457",
+        "first_name": null,
+        "last_name": null
+    },
+    "2": {
+        "id": "2",
+        "username": "habiutomo",
+        "email": "admin@servercepat.cloud",
+        "password_hash": "scrypt:32768:8:1$xXWg4YMHUMzfd0Hc$e014e71f79f6fd316b68b343832f2749120f1245c06d66b73bf76ef297c2d77f9d5e66b69814e89cc6b339c02c301888b3282a02a2f025d0baf89e8759df7f56",
+        "first_name": null,
+        "last_name": null
+    },
+    "3": {
+        "id": "3",
+        "username": "info",
+        "email": "info@servercepat.cloud",
+        "password_hash": "scrypt:32768:8:1$HwfNsLmnSDqPKHFc$f35425e4f8f8964b487d86de883dcead25ba0ebc8e49a75b5979916c30363a90a8a2e1f8d925d40c879dfee600c66cc4281d08dc16a8de98db5ac5f433948d02",
+        "first_name": null,
+        "last_name": null
+    }
+}
