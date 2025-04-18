@@ -2,6 +2,10 @@
 
 Telegram Shop adalah aplikasi e-commerce berbasis Telegram Bot yang memungkinkan pengguna untuk menjelajahi produk, menambahkan item ke keranjang, dan menyelesaikan pembelian melalui antarmuka Telegram. Aplikasi ini juga mencakup panel admin berbasis web untuk mengelola produk, pesanan, dan pengguna.
 
+## Tampilan Aplikasi
+
+![Tampilan Bot Telegram](1.jpg)
+
 ## Fitur
 
 ### Bot Telegram
