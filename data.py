@@ -74,7 +74,26 @@ def get_all_users():
 def get_user(user_id):
     """Get a user by ID."""
     users = get_all_users()
-    return users.get(str(user_id))
+    user_data = users.get(str(user_id))
+    if user_data:
+        return user_data
+    return None
+
+def get_user_by_username(username):
+    """Get a user by username."""
+    users = get_all_users()
+    for user_id, user_data in users.items():
+        if user_data.get('username') == username:
+            return user_data
+    return None
+
+def get_user_by_email(email):
+    """Get a user by email."""
+    users = get_all_users()
+    for user_id, user_data in users.items():
+        if user_data.get('email') == email:
+            return user_data
+    return None
 
 def add_or_update_user(user_id, user_data):
     """Add or update a user."""
@@ -82,6 +101,30 @@ def add_or_update_user(user_id, user_data):
     users[str(user_id)] = user_data
     save_json(USERS_FILE, users)
     return str(user_id)
+
+def create_user(username, email, password):
+    """Create a new user with password."""
+    # Check if username or email already exists
+    if get_user_by_username(username) or get_user_by_email(email):
+        return None
+        
+    users = get_all_users()
+    # Generate a unique ID
+    if users:
+        user_id = str(max(int(id) for id in users.keys()) + 1)
+    else:
+        user_id = "1"
+    
+    # Create user with password hash
+    from models import User
+    user = User(id=user_id, username=username, email=email)
+    user.set_password(password)
+    
+    # Save user to storage
+    users[user_id] = user.to_dict()
+    save_json(USERS_FILE, users)
+    
+    return user_id
 
 # Cart Management
 def get_cart(user_id):

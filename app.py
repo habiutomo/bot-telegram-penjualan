@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 import data
 from config import ADMIN_USERNAME, ADMIN_PASSWORD, HOST, PORT
+from forms import SignupForm, LoginForm
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_key")
+app.config['SECRET_KEY'] = os.environ.get("SESSION_SECRET", "dev_secret_key")
 
 # Check if admin exists, if not create default admin
 def init_admin():
@@ -71,27 +73,58 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
         
-        # Load admin data
+        # Check if it's an admin login
         try:
             with open("data/admin.json", "r") as f:
                 admin_data = json.load(f)
+                
+            if username == admin_data['username'] and check_password_hash(admin_data['password_hash'], password):
+                session['logged_in'] = True
+                session['username'] = username
+                session['is_admin'] = True
+                flash('Admin login successful!', 'success')
+                return redirect(url_for('index'))
         except:
-            flash('Admin account not found', 'danger')
-            return render_template('login.html', now=datetime.now())
+            logger.error("Failed to load admin data")
         
-        if username == admin_data['username'] and check_password_hash(admin_data['password_hash'], password):
-            session['logged_in'] = True
-            session['username'] = username
-            flash('Login successful!', 'success')
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid credentials', 'danger')
+        # Check if it's a regular user login
+        user_data = data.get_user_by_username(username)
+        if user_data:
+            from models import User
+            user = User.from_dict(user_data)
+            if user.check_password(password):
+                session['logged_in'] = True
+                session['username'] = username
+                session['user_id'] = user.id
+                session['is_admin'] = False
+                flash('Login successful!', 'success')
+                return redirect(url_for('index'))
+        
+        flash('Invalid username or password', 'danger')
     
-    return render_template('login.html', now=datetime.now())
+    return render_template('login.html', form=form, now=datetime.now())
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = SignupForm()
+    if form.validate_on_submit():
+        user_id = data.create_user(
+            username=form.username.data,
+            email=form.email.data,
+            password=form.password.data
+        )
+        if user_id:
+            flash('Account created successfully! You can now log in.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Error creating account. Please try again.', 'danger')
+    
+    return render_template('signup.html', form=form, now=datetime.now())
 
 @app.route('/logout')
 def logout():

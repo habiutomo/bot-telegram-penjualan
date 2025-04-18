@@ -39,17 +39,29 @@ class Product:
         }
 
 class User:
-    def __init__(self, id, username, first_name, last_name=None):
+    def __init__(self, id, username, email, password_hash=None, first_name=None, last_name=None):
         self.id = id
         self.username = username
+        self.email = email
+        self.password_hash = password_hash
         self.first_name = first_name
         self.last_name = last_name
     
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        if self.password_hash:
+            return check_password_hash(self.password_hash, password)
+        return False
+        
     @classmethod
     def from_dict(cls, data):
         return cls(
             id=data.get('id'),
             username=data.get('username', ''),
+            email=data.get('email', ''),
+            password_hash=data.get('password_hash'),
             first_name=data.get('first_name', ''),
             last_name=data.get('last_name')
         )
@@ -58,6 +70,8 @@ class User:
         return {
             'id': self.id,
             'username': self.username,
+            'email': self.email,
+            'password_hash': self.password_hash,
             'first_name': self.first_name,
             'last_name': self.last_name
         }
